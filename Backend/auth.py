@@ -412,6 +412,13 @@ def save_preferences(req: UserPreferencesRequest):
 
     return {"message": "Preferences saved successfully"}
 
+@router.get("/preferences/status/{user_id}")
+def preferences_status(user_id: int):
+    prefs = get_preferences(user_id)
+    if not prefs:
+        return {"onboarding_completed": False}
+    return {"onboarding_completed": prefs.get("onboarding_completed", False)}
+
 @router.get("/preferences/{user_id}")
 def get_preferences(user_id: int):
     with engine.connect() as conn:
@@ -434,4 +441,3 @@ def get_preferences(user_id: int):
             "dislikes": pref["dislikes"],
             "onboarding_completed": pref["onboarding_completed"]
         }
-

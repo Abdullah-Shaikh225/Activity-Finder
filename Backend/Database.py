@@ -1,14 +1,23 @@
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
+
+# Get the URL and replace the scheme for pg8000
+db_url = os.getenv("DATABASE_URL")
+# Handle both postgresql:// and postgres:// prefixes
+db_url = db_url.replace("postgresql://", "postgresql+pg8000://").replace("postgres://", "postgresql+pg8000://")
+
 engine = create_engine(
-    os.getenv("DATABASE_URL"),
+    db_url,
     pool_pre_ping=True,
     pool_recycle=300,
     pool_size=5,
-    max_overflow=10
+    max_overflow=10,
+    connect_args={"ssl_context": True}  # Required for Neon SSL
 )
+
 def search_activities_by_location(lat, lng, radius_km, category):
     query = text("""
         SELECT name, category, description, address, lat, lng,

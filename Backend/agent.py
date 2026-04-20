@@ -64,7 +64,11 @@ STRICT RULES:
 2. Hard exclude any venue matching user's dislikes.
 3. why_for_you must mention their actual preference — never generic.
 4. If no good match exists, be honest in mismatch_note.
-5. Rank by personal fit first, rating second."""
+5. Rank by personal fit first, rating second.
+
+ABSOLUTE RULE: Start your response with { and end with }.
+No text before the opening brace. No text after the closing brace.
+If you cannot follow this rule, return {"status": "error"}."""
 
             human_msg = f"""CURRENT CONTEXT:
 - Time: {datetime.now().strftime('%I:%M %p, %a')}
@@ -112,7 +116,11 @@ Step 4 — Return this exact JSON:
   "mismatch_note": ""
 }}"""
         else:
-            system_msg = """You are a helpful local guide. Return ONLY valid JSON. Zero text outside JSON. Rank by rating."""
+            system_msg = """You are a helpful local guide. Return ONLY valid JSON. Zero text outside JSON. Rank by rating.
+
+ABSOLUTE RULE: Start your response with { and end with }.
+No text before the opening brace. No text after the closing brace.
+If you cannot follow this rule, return {"status": "error"}."""
             human_msg = f"""CURRENT CONTEXT:
 - Coordinates: {lat}, {lng}
 - Category: {category}
