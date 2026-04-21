@@ -359,6 +359,162 @@ def google_verify(req: GoogleVerifyRequest):
     return {"user": {"id": user["id"], "name": user["name"], "email": user["email"], "onboarded": onboarded}}
 
 
+# ── Forgot Password Models ──
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+# ── Send reset email ──
+def send_reset_email(to_email: str, name: str, reset_token: str):
+    reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        print(f"[DEV MODE] Password reset link for {to_email}: {reset_link}")
+        return True
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>Reset your password – Activity Finder</title>
+      <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: system-ui, -apple-system, Arial, sans-serif; font-size: 15px; background-color: #f5f7fa; padding: 32px 16px; }}
+        .wrapper {{ max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; }}
+        .header {{ background: #3b5930; padding: 28px 32px; }}
+        .header-row {{ display: flex; align-items: center; gap: 12px; }}
+        .logo-circle {{ width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }}
+        .brand {{ font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }}
+        .body {{ padding: 32px; text-align: center; }}
+        .title {{ font-size: 20px; font-weight: 700; color: #111111; margin-bottom: 10px; }}
+        .subtitle {{ font-size: 14px; color: #555555; line-height: 1.65; margin-bottom: 24px; }}
+        .btn {{ display: inline-block; background: #3b5930; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 10px; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }}
+        .btn:hover {{ background: #2e4525; }}
+        .note {{ font-size: 12px; color: #999999; margin-top: 20px; }}
+        .footer {{ background: #f9f9fb; border-top: 1px solid #eeeeee; padding: 20px 32px; text-align: center; }}
+        .footer p {{ font-size: 12px; color: #aaaaaa; margin-bottom: 4px; }}
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="header">
+          <div class="header-row">
+            <div class="logo-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="brand">Activity Finder</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="body">
+          <p class="title">Reset your password</p>
+          <p class="subtitle">Hi {name}, we received a request to reset your password. Click the button below to choose a new one.</p>
+          <a href="{reset_link}" class="btn">Reset Password</a>
+          <p class="note">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
+        </div>
+
+        <div class="footer">
+          <p>Sent to <strong>{to_email}</strong>.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Reset your Activity Finder password"
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = to_email
+    msg.attach(MIMEText(html, "html"))
+
+    try:
+        print(f"Attempting to send reset email to {to_email}...")
+        if SMTP_PORT == 465:
+            server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=8)
+        else:
+            server = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=8)
+            server.starttls()
+        with server:
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+        print(f"Successfully sent reset email to {to_email}")
+        return True
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send reset email: {e}")
+        return False
+
+
+# ── Forgot Password ──
+@router.post("/forgot-password")
+def forgot_password(req: ForgotPasswordRequest):
+    with engine.connect() as conn:
+        # Add reset columns if they don't exist
+        try:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255)"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP"))
+            conn.commit()
+        except Exception:
+            pass
+
+        result = conn.execute(
+            text("SELECT id, name, email, password_hash FROM users WHERE email = :email"),
+            {"email": req.email}
+        ).fetchone()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="No account found with this email address.")
+
+        user = dict(result._mapping)
+
+        # Google-only accounts don't have passwords
+        if not user.get("password_hash"):
+            raise HTTPException(status_code=400, detail="This account uses Google sign-in. Please use the Google button on the login page.")
+
+        reset_token = str(uuid.uuid4())
+        conn.execute(
+            text("UPDATE users SET reset_token = :token, reset_token_expires = NOW() + INTERVAL '1 hour' WHERE id = :id"),
+            {"token": reset_token, "id": user["id"]}
+        )
+        conn.commit()
+
+    send_reset_email(user["email"], user["name"], reset_token)
+    return {"message": "A password reset link has been sent to your email."}
+
+
+# ── Reset Password ──
+@router.post("/reset-password")
+def reset_password(req: ResetPasswordRequest):
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT id, name FROM users WHERE reset_token = :token AND reset_token_expires > NOW()"),
+            {"token": req.token}
+        ).fetchone()
+
+        if not result:
+            raise HTTPException(status_code=400, detail="Invalid or expired reset link. Please request a new one.")
+
+        user = dict(result._mapping)
+        new_hash = bcrypt.hashpw(req.new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        conn.execute(
+            text("UPDATE users SET password_hash = :hash, reset_token = NULL, reset_token_expires = NULL WHERE id = :id"),
+            {"hash": new_hash, "id": user["id"]}
+        )
+        conn.commit()
+
+    return {"message": "Password reset successfully. You can now log in."}
+
+
 # ── Preferences ──
 import json
 

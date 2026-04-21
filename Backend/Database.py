@@ -8,6 +8,14 @@ load_dotenv()
 db_url = os.getenv("DATABASE_URL")
 # Handle both postgresql:// and postgres:// prefixes
 db_url = db_url.replace("postgresql://", "postgresql+pg8000://").replace("postgres://", "postgresql+pg8000://")
+# Strip query params not supported by pg8000 (SSL handled via connect_args)
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+parsed = urlparse(db_url)
+params = parse_qs(parsed.query)
+params.pop("sslmode", None)
+params.pop("channel_binding", None)
+clean_query = urlencode(params, doseq=True)
+db_url = urlunparse(parsed._replace(query=clean_query))
 
 engine = create_engine(
     db_url,

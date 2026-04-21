@@ -1,0 +1,76 @@
+﻿d:\WebRouter2\Activty-Finder2\
+backend\venv\Scripts\python.ex
+e : Traceback (most recent 
+call last):
+At line:1 char:1
++ d:\WebRouter2\Activty-Finder
+2\backend\venv\Scripts\python.
+exe -c "fro ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (Traceback  
+   (most recent call last):   
+ :String) [], RemoteExcept    
+ion
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+  File "<string>", line 1, in 
+<module>
+    from main import app; 
+print('OK')
+    ^^^^^^^^^^^^^^^^^^^^
+  File "D:\WebRouter2\Activty-
+Finder2\backend\main.py", 
+line 5, in <module>
+    from agent import 
+stream_search
+  File "D:\WebRouter2\Activty-
+Finder2\backend\agent.py", 
+line 2, in <module>
+    from tools import 
+find_activities, 
+search_real_places
+  File "D:\WebRouter2\Activty-
+Finder2\backend\tools.py", 
+line 2, in <module>
+    from Database import 
+search_activities_by_location
+  File "D:\WebRouter2\Activty-
+Finder2\backend\Database.py", 
+line 12, in <module>
+    engine = create_engine(
+        db_url,
+    ...<4 lines>...
+        
+connect_args={"ssl_context": 
+True}  # Required for Neon SSL
+    )
+  File "<string>", line 2, in 
+create_engine
+  File "D:\WebRouter2\Activty-
+Finder2\backend\venv\Lib\site-
+packages\sqlalchemy\util\depre
+cations.py", line 281, in 
+warned
+    return fn(*args, 
+**kwargs)  # type: 
+ignore[no-any-return]
+  File "D:\WebRouter2\Activty-
+Finder2\backend\venv\Lib\site-
+packages\sqlalchemy\engine\cre
+ate.py", line 617, in 
+create_engine
+    dbapi = 
+dbapi_meth(**dbapi_args)
+  File "D:\WebRouter2\Activty-
+Finder2\backend\venv\Lib\site-
+packages\sqlalchemy\dialects\p
+ostgresql\pg8000.py", line 
+500, in import_dbapi
+    return 
+__import__("pg8000")
+ModuleNotFoundError: No 
+module named 'pg8000'

@@ -1,0 +1,10 @@
+﻿Name: pg8000
+Version: 1.31.5
+Summary: PostgreSQL interface library
+Home-page: https://codeberg.org/tlocke/pg8000
+Author: The Contributors
+Author-email: 
+License: BSD 3-Clause License
+Location: D:\WebRouter\activty-finder\backend\venv\Lib\site-packages
+Requires: python-dateutil, scramp
+Required-by: 

@@ -139,7 +139,7 @@ export default function OnboardingPage() {
             console.error('Error saving preferences', error);
         } finally {
             setLoading(false);
-            router.push('/');
+            router.push('/dashboard');
         }
     };
 

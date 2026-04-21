@@ -26,7 +26,7 @@ export default function LoginPage() {
             if (result.user && !result.user.onboarded) {
                 router.push("/onboarding");
             } else {
-                router.push("/");
+                router.push("/dashboard");
             }
         } else {
             if (result.requiresVerification) {
@@ -67,7 +67,7 @@ export default function LoginPage() {
                         <div className="space-y-1">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-bold text-black tracking-normal">Password</label>
-                                <Link href="#" className="text-xs text-blue-600 hover:underline">forgot password</Link>
+                                <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline">forgot password</Link>
                             </div>
                             <input
                                 type="password"

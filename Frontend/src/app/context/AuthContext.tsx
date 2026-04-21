@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     router.push('/onboarding');
                 } else {
                     setIsAuthenticating(false);
-                    router.push('/');
+                    router.push('/dashboard');
                 }
             } catch (err) {
                 console.error('Network error during Google login:', err);

@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+.env
+out.txt
+output.txt
+test_search.py
+test_search2.py

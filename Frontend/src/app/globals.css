@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #faf9f7;
   --foreground: #1a1a1a;
-  --green: #3b5930;
-  --green-hover: #2e4525;
-  --green-light: #f0f4f0;
-  --border: #e5e5e5;
-  --border-light: #f0f0f0;
+  --green: #4a6741;
+  --green-hover: #3b5535;
+  --green-light: #eef3ec;
+  --green-mist: #dce8d8;
+  --border: #e8e5e0;
+  --border-light: #f0ede8;
   --muted: #6b7280;
   --muted-light: #9ca3af;
+  --warm-bg: #fdfcfa;
+  --cream: #f7f4ef;
+  --peach: #fef0e8;
+  --sage-50: #f4f7f3;
+  --sage-100: #e6ece4;
 }
 
 @theme inline {
@@ -42,7 +48,7 @@ body {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
 
   to {
@@ -58,6 +64,58 @@ body {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  33% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+
+  66% {
+    transform: translateY(4px) rotate(-1deg);
+  }
+}
+
+@keyframes floatSlow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
   }
 }
 
@@ -83,16 +141,88 @@ body {
   }
 }
 
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out both;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out both;
+  animation: fadeIn 0.5s ease-out both;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
 }
 
 .animate-blink {
   animation: blink 1s step-end infinite;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ── Stagger delays ── */
@@ -116,13 +246,70 @@ body {
   animation-delay: 0.5s;
 }
 
+.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
+}
+
+.delay-800 {
+  animation-delay: 0.8s;
+}
+
+/* ── Gradient text ── */
+.text-gradient {
+  background: linear-gradient(135deg, #4a6741 0%, #6b8f5e 50%, #8ab07c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass card ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ── Subtle hover lift ── */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(74, 103, 65, 0.08);
+}
+
+/* ── Interactive border glow ── */
+.border-glow {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.border-glow:hover {
+  border-color: rgba(74, 103, 65, 0.3);
+  box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.06);
+}
+
+/* ── Hero gradient mesh ── */
+.hero-mesh {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(220, 232, 216, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(254, 240, 232, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(238, 243, 236, 0.5) 0%, transparent 50%),
+    var(--warm-bg);
+}
+
 /* ── Range Slider ── */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 4px;
-  background: #e5e7eb;
+  background: linear-gradient(to right, #dce8d8, #e5e7eb);
   border-radius: 99px;
   outline: none;
 }
@@ -130,26 +317,53 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  background: #3b5930;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #4a6741, #6b8f5e);
   border-radius: 50%;
   cursor: pointer;
   border: 3px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s;
+  box-shadow: 0 2px 8px rgba(74, 103, 65, 0.25);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(74, 103, 65, 0.35);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  background: #3b5930;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #4a6741, #6b8f5e);
   border-radius: 50%;
   cursor: pointer;
   border: 3px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(74, 103, 65, 0.25);
+}
+
+/* ── Shimmer loading effect ── */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #fafafa 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Heart pop animation ── */
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.4);
+  }
+
+  60% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1.25);
+  }
 }
